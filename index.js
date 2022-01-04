@@ -20,18 +20,18 @@ async function main() {
     await sleep(500);
   }
 
-  while (true) {
-    let response = await fetch(`https://replicate.npmjs.com/_changes?since=${since}&include_docs=true`);
+  let shouldContinue = true;
+  while (shouldContinue) {
+    let response = await fetch(`https://replicate.npmjs.com/_changes?since=${since}&include_docs=true&limit=50`);
     let body = await response.json();
 
     for (let result of body.results) {
       console.log(result.seq, result.id, result.doc.keywords);
+      since = result.seq;
     }
 
-    since = body.last_seq;
-
-    // wait some time...
-    await sleep(500);
+    // if we didn't have the maximum changes (based on the `limit` we set in the query) wait some time...
+    shouldContinue = body.results.length === 50;
   }
 }
 
