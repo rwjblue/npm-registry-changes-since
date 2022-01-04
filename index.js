@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 
+const BATCH_SIZE = 50;
+
 function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -22,7 +24,7 @@ async function main() {
 
   let shouldContinue = true;
   while (shouldContinue) {
-    let response = await fetch(`https://replicate.npmjs.com/_changes?since=${since}&include_docs=true&limit=50`);
+    let response = await fetch(`https://replicate.npmjs.com/_changes?since=${since}&include_docs=true&limit=${BATCH_SIZE}`);
     let body = await response.json();
 
     for (let result of body.results) {
@@ -31,7 +33,7 @@ async function main() {
     }
 
     // if we didn't have the maximum changes (based on the `limit` we set in the query) wait some time...
-    shouldContinue = body.results.length === 50;
+    shouldContinue = body.results.length === BATCH_SIZE;
   }
 }
 
